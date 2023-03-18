@@ -28,7 +28,7 @@ import (
 	"github.com/vladimirvivien/gexe"
 )
 
-var kwokVersion = "v0.17.0"
+var kwokVersion = "v0.1.1"
 
 type Cluster struct {
 	name        string
@@ -150,7 +150,7 @@ func (k *Cluster) Destroy() error {
 }
 
 func (k *Cluster) findOrInstallKwok(e *gexe.Echo) error {
-	if e.Prog().Avail("kwok") == "" {
+	if e.Prog().Avail("kwok") == "" || e.Prog().Avail("kwokctl") == "" {
 		log.V(4).Infof(`kwok not found, installing with go install sigs.k8s.io/kwok@%s`, kwokVersion)
 		if err := k.installKwok(e); err != nil {
 			return err
@@ -164,9 +164,8 @@ func (k *Cluster) installKwok(e *gexe.Echo) error {
 		kwokVersion = k.version
 	}
 
-	//log.V(4).Infof("Installing: go install sigs.k8s.io/kwok@%s", kwokVersion)
-
-	installKwokCtlCmd := fmt.Sprintf("wget -O /tmp/kwokctl -c `https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwokctl-$(go env GOOS)-$(go env GOARCH)`", kwokVersion)
+	installKwokCtlCmd := fmt.Sprintf("wget -O /tmp/kwokctl -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwokctl-$(go env GOOS)-$(go env GOARCH)", kwokVersion)
+	log.V(4).Infof("%s", installKwokCtlCmd)
 	p := e.RunProc(installKwokCtlCmd)
 	if p.Err() != nil {
 		return fmt.Errorf("failed to install kwokctl: %s", p.Err())
@@ -175,7 +174,6 @@ func (k *Cluster) installKwok(e *gexe.Echo) error {
 	if !p.IsSuccess() || p.ExitCode() != 0 {
 		return fmt.Errorf("failed to install kwok: %s", p.Result())
 	}
-
 	p = e.RunProc(fmt.Sprintf("chmod +x /tmp/kwokctl"))
 	if p.Err() != nil {
 		return fmt.Errorf("failed to install kwok: %s", p.Err())
@@ -186,7 +184,7 @@ func (k *Cluster) installKwok(e *gexe.Echo) error {
 		return fmt.Errorf("failed to install kwok: %s", p.Err())
 	}
 
-	installKwokCmd := fmt.Sprintf("wget -O /tmp/kwok -c `https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwok-$(go env GOOS)-$(go env GOARCH)`", kwokVersion)
+	installKwokCmd := fmt.Sprintf("wget -O /tmp/kwok -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwok-$(go env GOOS)-$(go env GOARCH)", kwokVersion)
 	p = e.RunProc(installKwokCmd)
 	if p.Err() != nil {
 		return fmt.Errorf("failed to install kwok: %s", p.Err())
@@ -234,5 +232,5 @@ func (k *Cluster) installKwok(e *gexe.Echo) error {
 		log.V(4).Info("Installed kwokCtl at", kwokCtlPath)
 		return nil
 	}
-	return fmt.Errorf("kind not available even after installation")
+	return fmt.Errorf("kwok and kwokctl not available even after installation")
 }
