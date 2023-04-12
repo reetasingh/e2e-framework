@@ -142,7 +142,7 @@ func waitForKwokControlPlane(client klient.Client) error {
 // NOTE: this should be used in a Environment.Finish step.
 func DestroyKwokCluster(name string) env.Func {
 	return func(ctx context.Context, cfg *envconf.Config) (context.Context, error) {
-		clusterVal := ctx.Value(kindContextKey(name))
+		clusterVal := ctx.Value(kwokContextKey(name))
 		if clusterVal == nil {
 			return ctx, fmt.Errorf("destroy kwok cluster func: context cluster is nil")
 		}
@@ -153,7 +153,7 @@ func DestroyKwokCluster(name string) env.Func {
 		}
 
 		if err := cluster.Destroy(); err != nil {
-			return ctx, fmt.Errorf("destroy kind cluster: %w", err)
+			return ctx, fmt.Errorf("destroy kwok cluster: %w", err)
 		}
 
 		return ctx, nil
