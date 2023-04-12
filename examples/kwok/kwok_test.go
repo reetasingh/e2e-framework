@@ -45,17 +45,17 @@ func TestKwokCluster(t *testing.T) {
 				t.Fatal(err)
 			}
 			if &dep != nil {
-				t.Logf("deployment found: %s", dep.Name)
+				t.Logf("deployment found: %s %s", dep.Name, cfg.Namespace())
 			}
 			return context.WithValue(ctx, "test-deployment", &dep)
-		}).
-		Teardown(func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
-			dep := ctx.Value("test-deployment").(*appsv1.Deployment)
-			if err := cfg.Client().Resources().Delete(ctx, dep); err != nil {
-				t.Fatal(err)
-			}
-			return ctx
 		}).Feature()
+	// Teardown(func(ctx context.Context, t *testing.T, cfg *envconf.Config) context.Context {
+	// 	dep := ctx.Value("test-deployment").(*appsv1.Deployment)
+	// 	if err := cfg.Client().Resources().Delete(ctx, dep); err != nil {
+	// 		t.Fatal(err)
+	// 	}
+	// 	return ctx
+	// }).Feature()
 
 	testenv.Test(t, deploymentFeature)
 }

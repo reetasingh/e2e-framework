@@ -61,10 +61,10 @@ func CreateKwokCluster(clusterName string) env.Func {
 		// update envconfig  with kubeconfig
 		cfg.WithKubeconfigFile(kubecfg)
 
-		// stall, wait for pods initializations
-		if err := waitForKwokControlPlane(cfg.Client()); err != nil {
-			return ctx, err
-		}
+		// // stall, wait for pods initializations
+		// if err := waitForKwokControlPlane(cfg.Client()); err != nil {
+		// 	return ctx, err
+		// }
 
 		// store entire cluster value in ctx for future access using the cluster name
 		return context.WithValue(ctx, kindContextKey(clusterName), k), nil
@@ -88,10 +88,10 @@ func CreateKwokClusterWithConfig(clusterName, image, configFilePath string) env.
 		// update envconfig  with kubeconfig
 		cfg.WithKubeconfigFile(kubecfg)
 
-		// stall, wait for pods initializations
-		if err := waitForControlPlane(cfg.Client()); err != nil {
-			return ctx, err
-		}
+		// // stall, wait for pods initializations
+		// if err := waitForControlPlane(cfg.Client()); err != nil {
+		// 	return ctx, err
+		// }
 
 		// store entire cluster value in ctx for future access using the cluster name
 		return context.WithValue(ctx, kindContextKey(clusterName), k), nil

@@ -100,7 +100,7 @@ func (k *Cluster) Create(args ...string) (string, error) {
 		return k.getKubeconfig()
 	}
 
-	command := fmt.Sprintf(`kwok create cluster --name %s`, k.name)
+	command := fmt.Sprintf(`kwokctl create cluster --name %s`, k.name)
 	if len(args) > 0 {
 		command = fmt.Sprintf("%s %s", command, strings.Join(args, " "))
 	}
@@ -116,7 +116,7 @@ func (k *Cluster) Create(args ...string) (string, error) {
 	}
 	log.V(4).Info("kwok clusters available: ", clusters)
 
-	// Grab kubeconfig file for cluster.
+	// Grab kubeconig file for cluster.
 	return k.getKubeconfig()
 }
 
@@ -160,31 +160,35 @@ func (k *Cluster) findOrInstallKwok(e *gexe.Echo) error {
 }
 
 func (k *Cluster) installKwok(e *gexe.Echo) error {
+	fmt.Println("installing")
 	if k.version != "" {
 		kwokVersion = k.version
 	}
 
-	installKwokCtlCmd := fmt.Sprintf("wget -O /tmp/kwokctl -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwokctl-$(go env GOOS)-$(go env GOARCH)", kwokVersion)
-	log.V(4).Infof("%s", installKwokCtlCmd)
+	os := e.Run("go env GOOS")
+	arch := e.Run("go env GOARCH")
+
+	installKwokCtlCmd := fmt.Sprintf("wget -O /tmp/kwokctl -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwokctl-%s-%s", kwokVersion, os, arch)
+	log.V(2).Infof("%s", installKwokCtlCmd)
 	p := e.RunProc(installKwokCtlCmd)
+	if p.Err() != nil {
+		return fmt.Errorf("failed to install kwokctl: %s %s", installKwokCtlCmd, p.Err())
+	}
+
+	if !p.IsSuccess() || p.ExitCode() != 0 {
+		return fmt.Errorf("failed to install kwokctl: %s", p.Result())
+	}
+	p = e.RunProc(fmt.Sprintf("chmod +x /tmp/kwokctl"))
 	if p.Err() != nil {
 		return fmt.Errorf("failed to install kwokctl: %s", p.Err())
 	}
 
-	if !p.IsSuccess() || p.ExitCode() != 0 {
-		return fmt.Errorf("failed to install kwok: %s", p.Result())
-	}
-	p = e.RunProc(fmt.Sprintf("chmod +x /tmp/kwokctl"))
-	if p.Err() != nil {
-		return fmt.Errorf("failed to install kwok: %s", p.Err())
-	}
-
 	p = e.RunProc(fmt.Sprintf("sudo mv /tmp/kwokctl /usr/local/bin/kwokctl"))
 	if p.Err() != nil {
-		return fmt.Errorf("failed to install kwok: %s", p.Err())
+		return fmt.Errorf("failed to install kwokctl: %s", p.Err())
 	}
 
-	installKwokCmd := fmt.Sprintf("wget -O /tmp/kwok -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwok-$(go env GOOS)-$(go env GOARCH)", kwokVersion)
+	installKwokCmd := fmt.Sprintf("wget -O /tmp/kwok -c https://github.com/kubernetes-sigs/kwok/releases/download/%s/kwok-%s-%s", kwokVersion, os, arch)
 	p = e.RunProc(installKwokCmd)
 	if p.Err() != nil {
 		return fmt.Errorf("failed to install kwok: %s", p.Err())
