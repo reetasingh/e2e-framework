@@ -34,7 +34,7 @@ func TestKwokCluster(t *testing.T) {
 			// start a deployment
 			deployment := newDeployment(cfg.Namespace(), "test-deployment", 1)
 			if err := cfg.Client().Resources().Create(ctx, deployment); err != nil {
-				t.Fatal(err, cfg.KubeContext())
+				t.Fatal(err)
 			}
 			time.Sleep(2 * time.Second)
 			return ctx
