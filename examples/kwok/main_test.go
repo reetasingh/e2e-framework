@@ -29,7 +29,7 @@ var testenv env.Environment
 
 func TestMain(m *testing.M) {
 	testenv = env.New()
-	kwokClusterName := envconf.RandomName("kwok-cluster2", 16)
+	kwokClusterName := envconf.RandomName("kwok-cluster", 16)
 	namespace := envconf.RandomName("kwok-ns", 16)
 
 	testenv.Setup(
@@ -38,8 +38,8 @@ func TestMain(m *testing.M) {
 	)
 
 	testenv.Finish(
-	//envfuncs.DeleteNamespace(namespace),
-	//envfuncs.DestroyKwokCluster(kwokClusterName),
+		envfuncs.DeleteNamespace(namespace),
+		envfuncs.DestroyKwokCluster(kwokClusterName),
 	)
 	os.Exit(testenv.Run(m))
 }

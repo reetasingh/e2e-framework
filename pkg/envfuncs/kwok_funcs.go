@@ -79,7 +79,7 @@ func CreateKwokCluster(clusterName string) env.Func {
 func CreateKwokClusterWithConfig(clusterName, image, configFilePath string) env.Func {
 	return func(ctx context.Context, cfg *envconf.Config) (context.Context, error) {
 		k := kwok.NewCluster(clusterName)
-		kubecfg, err := k.CreateWithConfig(image, configFilePath)
+		kubecfg, err := k.CreateWithConfig(configFilePath)
 		if err != nil {
 			return ctx, err
 		}
