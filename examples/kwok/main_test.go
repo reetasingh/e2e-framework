@@ -29,7 +29,7 @@ var testenv env.Environment
 
 func TestMain(m *testing.M) {
 	testenv = env.New()
-	kwokClusterName := envconf.RandomName("kwok-cluster", 16)
+	kwokClusterName := envconf.RandomName("kwok-clusterh", 16)
 	namespace := envconf.RandomName("kwok-ns", 16)
 
 	testenv.Setup(
